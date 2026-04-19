@@ -78,3 +78,11 @@ brews:
       bin.install "wut"
     test: |
       system "#{bin}/wut", "version"
+    caveats: |
+      Finish setup:
+        wut setup          # pick harness + default mode
+        wut install-hook   # wire the shell hook into your rc file
+        wut doctor         # sanity-check the config
+
+      Or, if you prefer to print the hook snippet and source it yourself:
+        eval "$(wut init zsh)"    # bash / fish also supported
