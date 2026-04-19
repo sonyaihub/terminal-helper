@@ -18,7 +18,7 @@ func NewHarnessCmd() *cobra.Command {
 		Use:   "harness",
 		Short: "Manage harnesses: list, switch, and test.",
 	}
-	cmd.AddCommand(newHarnessList(), newHarnessUse(), newHarnessTest(), newHarnessAdd())
+	cmd.AddCommand(newHarnessList(), newHarnessUse(), newHarnessTest(), newHarnessAdd(), newHarnessRemove())
 	return cmd
 }
 
@@ -220,6 +220,58 @@ func newHarnessTest() *cobra.Command {
 	cmd.Flags().StringVar(&promptFlag, "prompt", "hello from wut", "prompt to pass to the harness")
 	cmd.Flags().StringVar(&modeFlag, "mode", "", "override default_mode (interactive|headless)")
 	return cmd
+}
+
+func newHarnessRemove() *cobra.Command {
+	var force bool
+	cmd := &cobra.Command{
+		Use:   "remove <name>",
+		Short: "Remove a harness from the config.",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			name := args[0]
+			cfg, path, err := loadConfig()
+			if err != nil {
+				return err
+			}
+			if _, ok := cfg.Harness[name]; !ok {
+				return fmt.Errorf("no harness named %q — run `wut harness list` to see configured harnesses", name)
+			}
+			if cfg.ActiveHarness == name {
+				if !force {
+					return fmt.Errorf("%q is the active harness — run `wut harness use <other>` first, or pass --force", name)
+				}
+				next, err := nextHarnessAfterRemoval(cfg.Harness, name)
+				if err != nil {
+					return err
+				}
+				cfg.ActiveHarness = next
+				fmt.Printf("→ active_harness switched to %q\n", next)
+			}
+			delete(cfg.Harness, name)
+			if err := writeConfig(path, cfg); err != nil {
+				return err
+			}
+			fmt.Printf("✔ removed harness %q\n", name)
+			return nil
+		},
+	}
+	cmd.Flags().BoolVar(&force, "force", false, "allow removing the active harness (falls back to the next available harness)")
+	return cmd
+}
+
+func nextHarnessAfterRemoval(harnesses map[string]config.Harness, removing string) (string, error) {
+	names := make([]string, 0, len(harnesses))
+	for n := range harnesses {
+		if n != removing {
+			names = append(names, n)
+		}
+	}
+	if len(names) == 0 {
+		return "", fmt.Errorf("refusing to remove the only remaining harness — add another one first with `wut harness add`")
+	}
+	sort.Strings(names)
+	return names[0], nil
 }
 
 // loadConfig resolves the config path, loads the file (or defaults if missing),
