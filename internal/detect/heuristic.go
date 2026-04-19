@@ -244,3 +244,126 @@ func matchesExtra(token string, extras []string) bool {
 	}
 	return false
 }
+
+// Explanation carries the full reasoning behind a classification decision.
+type Explanation struct {
+	Class          Classification
+	Forced         ForcedMode
+	Line           string
+	FirstToken     string
+	TokenCount     int
+	HardGate       string
+	PrefixOverride string
+	Signals        []Signal
+}
+
+// Signal is one soft heuristic that fired during classification.
+type Signal struct {
+	Name   string
+	Token  string
+	Source string
+}
+
+// Explain replays the classifier's decision for line and records every signal
+// that contributed. It is intended for human-facing output only — callers that
+// need performance should use Classify or Parse instead.
+func Explain(line string, opts ...Options) Explanation {
+	line = strings.TrimSpace(line)
+	exp := Explanation{Class: PassThrough, Line: line}
+
+	if line == "" {
+		exp.HardGate = "empty line"
+		return exp
+	}
+
+	// Prefix handling — runs before everything else.
+	switch {
+	case strings.HasPrefix(line, "??"):
+		exp.PrefixOverride = "??"
+		exp.Forced = ForceHeadless
+		exp.Class = Route
+		exp.Line = strings.TrimSpace(line[2:])
+		return exp
+	case strings.HasPrefix(line, "?!"):
+		exp.PrefixOverride = "?!"
+		exp.Forced = ForceInteractive
+		exp.Class = Route
+		exp.Line = strings.TrimSpace(line[2:])
+		return exp
+	case line[0] == '?':
+		exp.PrefixOverride = "?"
+		exp.Class = Route
+		exp.Line = strings.TrimSpace(line[1:])
+		return exp
+	case line[0] == '\\':
+		exp.PrefixOverride = "\\"
+		exp.Class = Route
+		exp.Line = strings.TrimSpace(line[1:])
+		return exp
+	case line[0] == '!':
+		exp.PrefixOverride = "!"
+		exp.Class = PassThrough
+		return exp
+	}
+
+	var o Options
+	if len(opts) > 0 {
+		o = opts[0]
+	}
+
+	tokens := strings.Fields(line)
+	exp.TokenCount = len(tokens)
+	if len(tokens) > 0 {
+		exp.FirstToken = tokens[0]
+	}
+
+	if len(tokens) < 3 {
+		exp.HardGate = "fewer than 3 tokens"
+		return exp
+	}
+	if strings.ContainsAny(tokens[0], "/.-~$") {
+		exp.HardGate = "first token contains path character"
+		return exp
+	}
+	if containsShellMetachar(line) {
+		exp.HardGate = "line contains shell metacharacter"
+		return exp
+	}
+
+	lower := strings.ToLower(line)
+	lowerTokens := tokenizeWords(lower)
+
+	// Stopword signal — report the first matching token.
+	for _, t := range lowerTokens {
+		if _, ok := stopwords[t]; ok {
+			exp.Signals = append(exp.Signals, Signal{Name: "stopword hit", Token: t, Source: "built-in"})
+			break
+		}
+		if matchesExtra(t, o.ExtraStopwords) {
+			exp.Signals = append(exp.Signals, Signal{Name: "stopword hit", Token: t, Source: "user-added"})
+			break
+		}
+	}
+
+	if strings.ContainsRune(line, '?') {
+		exp.Signals = append(exp.Signals, Signal{Name: "contains question mark", Token: "?"})
+	}
+	if strings.ContainsAny(line, "',") {
+		exp.Signals = append(exp.Signals, Signal{Name: "contains apostrophe or comma"})
+	}
+	if len(tokens) >= 6 {
+		exp.Signals = append(exp.Signals, Signal{Name: "6 or more tokens"})
+	}
+
+	first := strings.ToLower(tokens[0])
+	if _, ok := interrogatives[first]; ok {
+		exp.Signals = append(exp.Signals, Signal{Name: "first token is interrogative", Token: first, Source: "built-in"})
+	} else if matchesExtra(first, o.ExtraInterrogatives) {
+		exp.Signals = append(exp.Signals, Signal{Name: "first token is interrogative", Token: first, Source: "user-added"})
+	}
+
+	if len(exp.Signals) >= 2 {
+		exp.Class = Route
+	}
+	return exp
+}

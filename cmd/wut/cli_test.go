@@ -36,6 +36,7 @@ func runCLI(t *testing.T, args ...string) (string, error) {
 	root.AddCommand(NewSetupCmd())
 	root.AddCommand(NewKeywordsCmd())
 	root.AddCommand(NewCompletionCmd())
+	root.AddCommand(NewWhyCmd())
 
 	// Pipe os.Stdout into a buffer for the duration of this call.
 	r, w, _ := os.Pipe()
@@ -407,6 +408,37 @@ func TestSetupNonInteractive(t *testing.T) {
 	}
 	if !strings.Contains(got, `default_mode = "headless"`) {
 		t.Errorf("default_mode not set:\n%s", got)
+	}
+}
+
+func TestWhyRouteAfterKeywordAdd(t *testing.T) {
+	withXDGConfigHome(t)
+	if _, err := runCLI(t, "keywords", "add", "deploy", "--first-word"); err != nil {
+		t.Fatalf("keywords add: %v", err)
+	}
+	out, err := runCLI(t, "why", "deploy the service pls")
+	if err != nil {
+		t.Fatalf("why: %v", err)
+	}
+	if !strings.Contains(out, "ROUTE") {
+		t.Errorf("expected ROUTE in output:\n%s", out)
+	}
+	if !strings.Contains(out, "deploy") {
+		t.Errorf("expected keyword 'deploy' in output:\n%s", out)
+	}
+}
+
+func TestWhyPassthroughHardGate(t *testing.T) {
+	withXDGConfigHome(t)
+	out, err := runCLI(t, "why", "./script.sh foo bar")
+	if err != nil {
+		t.Fatalf("why: %v", err)
+	}
+	if !strings.Contains(out, "PASSTHROUGH") {
+		t.Errorf("expected PASSTHROUGH in output:\n%s", out)
+	}
+	if !strings.Contains(out, "hard gate") {
+		t.Errorf("expected 'hard gate' mention in output:\n%s", out)
 	}
 }
 

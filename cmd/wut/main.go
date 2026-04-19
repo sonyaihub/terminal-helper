@@ -16,6 +16,7 @@ func main() {
 	root.AddCommand(NewConfigCmd())
 	root.AddCommand(NewKeywordsCmd())
 	root.AddCommand(NewCompletionCmd())
+	root.AddCommand(NewWhyCmd())
 	if err := root.Execute(); err != nil {
 		os.Exit(1)
 	}

@@ -1,6 +1,9 @@
 package detect
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 func TestClassifyContractionsRoute(t *testing.T) {
 	// "whats going on" → 3 tokens, "whats" is an interrogative (apostrophe-dropped)
@@ -113,5 +116,77 @@ func TestClassify(t *testing.T) {
 				t.Fatalf("Classify(%q) = %v, want %v", tc.line, got, tc.want)
 			}
 		})
+	}
+}
+
+func TestExplainHardGates(t *testing.T) {
+	cases := []struct {
+		line     string
+		wantGate string
+	}{
+		{"", "empty line"},
+		{"ls", "fewer than 3 tokens"},
+		{"./script.sh foo bar", "first token contains path character"},
+	}
+	for _, tc := range cases {
+		got := Explain(tc.line)
+		if got.HardGate == "" {
+			t.Errorf("Explain(%q): expected hard gate %q, got none", tc.line, tc.wantGate)
+			continue
+		}
+		if !strings.Contains(got.HardGate, tc.wantGate) {
+			t.Errorf("Explain(%q).HardGate = %q, want to contain %q", tc.line, got.HardGate, tc.wantGate)
+		}
+		if len(got.Signals) != 0 {
+			t.Errorf("Explain(%q): expected no signals when hard-gated, got %v", tc.line, got.Signals)
+		}
+	}
+}
+
+func TestExplainRouteSignals(t *testing.T) {
+	got := Explain("how do I rebase")
+	if got.Class != Route {
+		t.Fatalf("Explain(\"how do I rebase\").Class = %v, want Route", got.Class)
+	}
+	if len(got.Signals) < 2 {
+		t.Fatalf("expected at least 2 signals, got %d: %v", len(got.Signals), got.Signals)
+	}
+	var hasInterrogative bool
+	for _, s := range got.Signals {
+		if strings.Contains(s.Name, "interrogative") {
+			hasInterrogative = true
+		}
+	}
+	if !hasInterrogative {
+		t.Errorf("expected an interrogative signal in %v", got.Signals)
+	}
+}
+
+func TestExplainPrefixOverride(t *testing.T) {
+	got := Explain("? anything works")
+	if got.PrefixOverride != "?" {
+		t.Errorf("PrefixOverride = %q, want %q", got.PrefixOverride, "?")
+	}
+	if got.Class != Route {
+		t.Errorf("Class = %v, want Route", got.Class)
+	}
+	if len(got.Signals) != 0 {
+		t.Errorf("expected no soft signals with prefix override, got %v", got.Signals)
+	}
+}
+
+func TestExplainUserAddedKeyword(t *testing.T) {
+	got := Explain("deploy the thing", Options{ExtraInterrogatives: []string{"deploy"}})
+	if got.Class != Route {
+		t.Fatalf("Class = %v, want Route", got.Class)
+	}
+	var found bool
+	for _, s := range got.Signals {
+		if strings.Contains(s.Name, "interrogative") && s.Token == "deploy" && s.Source == "user-added" {
+			found = true
+		}
+	}
+	if !found {
+		t.Errorf("expected user-added interrogative signal for 'deploy', signals: %v", got.Signals)
 	}
 }
