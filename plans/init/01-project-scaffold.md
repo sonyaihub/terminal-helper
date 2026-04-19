@@ -13,9 +13,9 @@ Nothing.
 
 Create at project root:
 
-- `go.mod` — `go mod init terminal-helper` (module path `terminal-helper`; we'll rename if we publish).
+- `go.mod` — `go mod init wut` (module path `wut`; we'll rename if we publish).
 - `.gitignore` — ignore the compiled binary, `dist/`, editor files.
-- `cmd/terminal-helper/main.go` — `package main` with `func main()` that prints `terminal-helper` and exits 0. This is a placeholder; step 02 replaces the body with a Cobra executor.
+- `cmd/wut/main.go` — `package main` with `func main()` that prints `wut` and exits 0. This is a placeholder; step 02 replaces the body with a Cobra executor.
 - Empty package directories (each with a `doc.go` one-liner so Go treats them as packages):
   - `internal/detect/`
   - `internal/config/`
@@ -27,8 +27,8 @@ No dependencies added yet.
 ## How to verify
 
 ```
-go build ./cmd/terminal-helper
-./terminal-helper
+go build ./cmd/wut
+./wut
 ```
 
-Expected: prints `terminal-helper` and exits 0. `go vet ./...` clean. The four internal package dirs exist and each contains `doc.go`.
+Expected: prints `wut` and exits 0. `go vet ./...` clean. The four internal package dirs exist and each contains `doc.go`.

@@ -4,11 +4,11 @@
 - `internal/shell/snippets/bash.sh` — bash hook (requires bash 4+).
 - `internal/shell/snippets/fish.fish` — fish hook.
 - `scripts/install.sh` — curl | sh installer using `go install`.
-- `Formula/terminal-helper.rb` — homebrew formula template (placeholders
+- `Formula/wut.rb` — homebrew formula template (placeholders
   marked TODO; ready to wire into a tap + release workflow).
 
 ## CLI
-- `terminal-helper init zsh|bash|fish` all emit syntactically-valid snippets.
+- `wut init zsh|bash|fish` all emit syntactically-valid snippets.
   Verified with `zsh -n` and `bash -n`.
 - `init --help` lists all three subcommands.
 
@@ -32,7 +32,7 @@ deferred to the first user on fish. The snippet follows the documented
 `scripts/install.sh` — POSIX `sh -n` clean. Flow:
 
 1. Require Go on `$PATH`.
-2. `go install github.com/sonyaihub/terminal-helper/cmd/terminal-helper@latest`.
+2. `go install github.com/sonyaihub/wut/cmd/wut@latest`.
 3. Check that the resulting binary exists at `$(go env GOBIN)` or
    `$(go env GOPATH)/bin`.
 4. Warn loudly if that directory isn't on `$PATH` (would cause the hook to
@@ -50,7 +50,7 @@ version-stamp ldflag, and includes a `caveats` block walking through
 filling at release time; the file is commented to that effect.
 
 ## Remaining
-- Shell-completion scripts (`terminal-helper completion`) aren't wired —
+- Shell-completion scripts (`wut completion`) aren't wired —
   Cobra provides them for free if we expose the command. Small follow-up.
 - Release pipeline (goreleaser config + GitHub Actions) — separate task.
 - Publishing the homebrew tap — separate task, depends on release pipeline.

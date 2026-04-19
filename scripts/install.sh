@@ -1,12 +1,12 @@
 #!/bin/sh
-# terminal-helper installer.
+# wut installer.
 #
 # Download + install the latest release binary from GitHub. Supports macOS and
 # Linux on amd64/arm64. Falls back to `go install` from source if a Go
 # toolchain is available and no matching release asset is found.
 #
 # Usage:
-#   curl -fsSL https://raw.githubusercontent.com/sonyaihub/terminal-helper/main/scripts/install.sh | sh
+#   curl -fsSL https://raw.githubusercontent.com/sonyaihub/wut/main/scripts/install.sh | sh
 #
 # Env overrides:
 #   TH_VERSION=v0.1.2     install a specific tag (default: latest)
@@ -18,8 +18,8 @@
 set -eu
 
 OWNER="sonyaihub"
-REPO="terminal-helper"
-BIN="terminal-helper"
+REPO="wut"
+BIN="wut"
 
 log()  { printf "==> %s\n" "$*" >&2; }
 warn() { printf "!!  %s\n" "$*" >&2; }
@@ -146,10 +146,10 @@ cat >&2 <<NEXT
 Next steps:
 
   1. Pick a harness and default mode:
-       terminal-helper setup
+       wut setup
   2. Wire the shell hook:
-       terminal-helper install-hook
+       wut install-hook
   3. Open a new shell, then verify:
-       terminal-helper doctor
+       wut doctor
 
 NEXT

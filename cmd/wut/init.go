@@ -5,7 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/sonyaihub/terminal-helper/internal/shell"
+	"github.com/sonyaihub/wut/internal/shell"
 )
 
 func NewInitCmd() *cobra.Command {

@@ -16,8 +16,8 @@ import (
 
 	"golang.org/x/term"
 
-	"github.com/sonyaihub/terminal-helper/internal/config"
-	"github.com/sonyaihub/terminal-helper/internal/render"
+	"github.com/sonyaihub/wut/internal/config"
+	"github.com/sonyaihub/wut/internal/render"
 )
 
 // HeadlessOptions tunes the non-invocation knobs that come from the top-level
@@ -43,7 +43,7 @@ func (h Headless) Run(ctx context.Context, prompt string) error {
 
 	path, err := exec.LookPath(inv.Command)
 	if err != nil {
-		return fmt.Errorf("harness binary %q not found on PATH — install it, or run `terminal-helper setup` to pick a different harness (%w)", inv.Command, err)
+		return fmt.Errorf("harness binary %q not found on PATH — install it, or run `wut setup` to pick a different harness (%w)", inv.Command, err)
 	}
 
 	cmdCtx, cancel := context.WithCancel(ctx)

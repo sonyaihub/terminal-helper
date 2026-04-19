@@ -3,16 +3,16 @@
 # CI: .github/workflows/release.yml runs `goreleaser release --clean` on `v*` tags.
 version: 2
 
-project_name: terminal-helper
+project_name: wut
 
 before:
   hooks:
     - go mod tidy
 
 builds:
-  - id: terminal-helper
-    main: ./cmd/terminal-helper
-    binary: terminal-helper
+  - id: wut
+    main: ./cmd/wut
+    binary: wut
     env:
       - CGO_ENABLED=0
     goos:
@@ -22,7 +22,7 @@ builds:
       - amd64
       - arm64
     ldflags:
-      # Trims debug info; stamps main.Version so `terminal-helper version`
+      # Trims debug info; stamps main.Version so `wut version`
       # returns the tag (e.g. "0.1.0") instead of "0.0.0-dev".
       - -s -w -X main.Version={{ .Version }}
 
@@ -63,16 +63,16 @@ changelog:
 # Homebrew tap publishing — flip `skip_upload` to false and create the tap
 # repo at github.com/sonyaihub/homebrew-tap before the first real release.
 brews:
-  - name: terminal-helper
+  - name: wut
     repository:
       owner: sonyaihub
       name: homebrew-tap
     directory: Formula
-    homepage: https://github.com/sonyaihub/terminal-helper
+    homepage: https://github.com/sonyaihub/wut
     description: Route accidental natural-language shell input to your AI harness
     license: MIT
     skip_upload: "true"
     install: |
-      bin.install "terminal-helper"
+      bin.install "wut"
     test: |
-      system "#{bin}/terminal-helper", "version"
+      system "#{bin}/wut", "version"

@@ -7,7 +7,7 @@ and let users pick headless as their default mode.
 Scope (from spec §14 M2): streaming stdout, `box` renderer, interrupt
 handling, timeout, fallback policy, configurable default mode.
 
-Deferred to M3: `markdown` render, `ask` mode prompt, `terminal-helper setup`
+Deferred to M3: `markdown` render, `ask` mode prompt, `wut setup`
 wizard.
 
 | # | Step | Status |

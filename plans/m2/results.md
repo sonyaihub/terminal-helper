@@ -32,7 +32,7 @@ With a 3-line sleeping script and `render = "box"`, `harness test` produced:
   lands in M3).
 
 ### Exit-code propagation
-- Child `exit 42` after box render → `terminal-helper` exits 42 (not Cobra's
+- Child `exit 42` after box render → `wut` exits 42 (not Cobra's
   generic 1). No "Error: exit status 42" noise.
 - Shell hook sees 42 → non-127 → "handled" branch → no `command not found`.
 
@@ -55,4 +55,4 @@ With a 3-line sleeping script and `render = "box"`, `harness test` produced:
 ## Deferred to M3
 - Markdown render mode (currently aliased to raw).
 - True `ask` prompt (prints note and falls back to interactive).
-- `terminal-helper setup` wizard.
+- `wut setup` wizard.

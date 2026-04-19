@@ -1,2 +1,2 @@
-// Package config loads and validates terminal-helper's TOML config.
+// Package config loads and validates wut's TOML config.
 package config

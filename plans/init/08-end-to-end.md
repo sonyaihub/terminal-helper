@@ -53,7 +53,7 @@ In a fresh zsh session with the snippet sourced (per step 05):
 - Pasting a multi-line block with code symbols on line 1 — first line passes through cleanly (classifier rejects on metachars / `-` / `/`).
 
 ### Exit check
-Run `./terminal-helper doctor` — doesn't exist yet in M0. That's expected. Note it in `plans/init/results.md` as a known M1 item.
+Run `./wut doctor` — doesn't exist yet in M0. That's expected. Note it in `plans/init/results.md` as a known M1 item.
 
 ## Done criteria
 Every row in the three top tables behaves exactly as described, with no workarounds. If any row is flaky (e.g. only fails in tmux, only fails on macOS Terminal vs iTerm), file it in `plans/init/results.md` and decide whether to fix in M0 or carry as a known issue into M1.

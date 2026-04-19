@@ -1,7 +1,7 @@
 # M0 — walking skeleton: verification results
 
 Ran the step 08 matrix in a zsh session with the snippet sourced via
-`eval "$(./terminal-helper init zsh)"`.
+`eval "$(./wut init zsh)"`.
 
 ## Real commands — must run normally
 - [x] `ls` — runs normally, handler never fires.
@@ -42,7 +42,7 @@ Ran the step 08 matrix in a zsh session with the snippet sourced via
       real binary. Matches spec §5.
 
 ## Out-of-scope for M0
-- `terminal-helper doctor` — deferred to M1 (see plan README). Not tested.
+- `wut doctor` — deferred to M1 (see plan README). Not tested.
 - Real harness config / `{prompt}` substitution — M1.
 - `?` / `\` escape hatches need documentation of the zsh quoting quirks, or
   additional zsh-side handling in the snippet (e.g. `setopt no_nomatch` local

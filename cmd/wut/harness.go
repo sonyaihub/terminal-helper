@@ -10,7 +10,7 @@ import (
 	"github.com/BurntSushi/toml"
 	"github.com/spf13/cobra"
 
-	"github.com/sonyaihub/terminal-helper/internal/config"
+	"github.com/sonyaihub/wut/internal/config"
 )
 
 func NewHarnessCmd() *cobra.Command {
@@ -36,7 +36,7 @@ func newHarnessAdd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "add <name>",
 		Short: "Register a new harness from the CLI.",
-		Long: `Add a harness to ~/.config/terminal-helper/config.toml.
+		Long: `Add a harness to ~/.config/wut/config.toml.
 
 At minimum, supply --command for interactive mode. Args default to ["{prompt}"].
 For a headless block, pass --headless-command (and optional --headless-args,
@@ -150,7 +150,7 @@ func newHarnessUse() *cobra.Command {
 			}
 			h, ok := cfg.Harness[name]
 			if !ok {
-				return fmt.Errorf("no harness named %q; run `terminal-helper harness list` to see options", name)
+				return fmt.Errorf("no harness named %q; run `wut harness list` to see options", name)
 			}
 			if cmdOverride != "" {
 				// Accept shell-style "bin --flag --flag2" strings: the first
@@ -217,7 +217,7 @@ func newHarnessTest() *cobra.Command {
 			return propagateExit(runHarness(cmd, cfg, name, mode, promptFlag))
 		},
 	}
-	cmd.Flags().StringVar(&promptFlag, "prompt", "hello from terminal-helper", "prompt to pass to the harness")
+	cmd.Flags().StringVar(&promptFlag, "prompt", "hello from wut", "prompt to pass to the harness")
 	cmd.Flags().StringVar(&modeFlag, "mode", "", "override default_mode (interactive|headless)")
 	return cmd
 }

@@ -17,7 +17,7 @@ done
   - `type EchoHarness struct{}`.
   - `func (EchoHarness) Run(ctx context.Context, prompt string) error` — writes `[echo-harness]: <prompt>\n` to `os.Stdout`, returns nil.
   - Intentionally *not* a generic interface yet — M1 will introduce `harness.Runner` properly once we have real invocation shapes to unify against.
-- `cmd/terminal-helper/detect.go` — replace the stderr `[would launch...]` line with:
+- `cmd/wut/detect.go` — replace the stderr `[would launch...]` line with:
   ```go
   if err := (harness.EchoHarness{}).Run(cmd.Context(), line); err != nil {
       return err
@@ -29,11 +29,11 @@ done
 ## How to verify
 
 ```
-./terminal-helper detect --line "how do I rebase onto main"; echo $?
+./wut detect --line "how do I rebase onto main"; echo $?
 # stdout: [echo-harness]: how do I rebase onto main
 # exit: 0
 
-./terminal-helper detect --line "gti status"; echo $?
+./wut detect --line "gti status"; echo $?
 # no output
 # exit: 127
 ```

@@ -9,7 +9,7 @@ and a homebrew formula template.
 | 01 | `init bash` — bash hook + embedded snippet | done |
 | 02 | `init fish` — fish hook + embedded snippet | done |
 | 03 | `scripts/install.sh` — curl | sh installer | done |
-| 04 | `Formula/terminal-helper.rb` — homebrew template | done |
+| 04 | `Formula/wut.rb` — homebrew template | done |
 | 05 | Verification | done |
 
 ## Shell-hook notes

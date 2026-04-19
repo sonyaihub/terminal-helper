@@ -29,6 +29,6 @@ The snippet is updated accordingly. See `internal/shell/snippets/zsh.sh`.
 
 ## Recursion guard
 
-If `terminal-helper` falls off `PATH` after the hook is installed, the handler
+If `wut` falls off `PATH` after the hook is installed, the handler
 would infinite-loop. The new snippet short-circuits with a plain
 "command not found" in that case.

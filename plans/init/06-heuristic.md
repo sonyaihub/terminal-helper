@@ -36,7 +36,7 @@ done
   - Escape hatch: `? one`, `\ foo bar`.
   - Passthrough prefix: `!how do I rebase onto main`.
   - Metachar present: `how do i grep | sort` → passthrough.
-- `cmd/terminal-helper/detect.go` — update:
+- `cmd/wut/detect.go` — update:
   - Call `detect.Classify(line)`.
   - On `Route`: print `[would launch harness with: <line>]` to stderr, exit 0.
   - On `PassThrough`: exit 127 (no stderr noise).
@@ -48,19 +48,19 @@ done
 go test ./internal/detect/...                     # all table cases pass
 go test ./internal/detect/... -run TestClassify -v  # readable output
 
-./terminal-helper detect --line "how do I rebase onto main"; echo $?
+./wut detect --line "how do I rebase onto main"; echo $?
 # stderr: [would launch harness with: how do I rebase onto main]
 # exit: 0
 
-./terminal-helper detect --line "gti status"; echo $?
+./wut detect --line "gti status"; echo $?
 # no stderr
 # exit: 127
 
-./terminal-helper detect --line "? short"; echo $?
+./wut detect --line "? short"; echo $?
 # routes despite being short (escape hatch)
 # exit: 0
 
-./terminal-helper detect --line "!how do I rebase"; echo $?
+./wut detect --line "!how do I rebase"; echo $?
 # passes through despite looking like NL
 # exit: 127
 ```

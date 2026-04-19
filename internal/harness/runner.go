@@ -8,7 +8,7 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/sonyaihub/terminal-helper/internal/config"
+	"github.com/sonyaihub/wut/internal/config"
 )
 
 // Runner executes a prompt against a harness.
@@ -39,7 +39,7 @@ func (r Interactive) Run(ctx context.Context, prompt string) error {
 
 	path, err := exec.LookPath(inv.Command)
 	if err != nil {
-		return fmt.Errorf("harness binary %q not found on PATH — install it, or run `terminal-helper setup` to pick a different harness (%w)", inv.Command, err)
+		return fmt.Errorf("harness binary %q not found on PATH — install it, or run `wut setup` to pick a different harness (%w)", inv.Command, err)
 	}
 
 	// argv[0] is the command name; the rest are the configured args.

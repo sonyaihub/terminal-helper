@@ -83,7 +83,7 @@ func (b *Behavior) SpinnerEnabled() bool {
 	return *b.Spinner
 }
 
-// Config is the top-level file at ~/.config/terminal-helper/config.toml.
+// Config is the top-level file at ~/.config/wut/config.toml.
 type Config struct {
 	ActiveHarness string             `toml:"active_harness"`
 	DefaultMode   Mode               `toml:"default_mode"`
@@ -102,13 +102,13 @@ type Detection struct {
 // DefaultPath returns the standard config file path, honoring XDG_CONFIG_HOME.
 func DefaultPath() (string, error) {
 	if xdg := os.Getenv("XDG_CONFIG_HOME"); xdg != "" {
-		return filepath.Join(xdg, "terminal-helper", "config.toml"), nil
+		return filepath.Join(xdg, "wut", "config.toml"), nil
 	}
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return "", err
 	}
-	return filepath.Join(home, ".config", "terminal-helper", "config.toml"), nil
+	return filepath.Join(home, ".config", "wut", "config.toml"), nil
 }
 
 // Load reads the config file from the given path. If the file does not exist,

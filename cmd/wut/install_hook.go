@@ -8,14 +8,14 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/sonyaihub/terminal-helper/internal/shell"
-	"github.com/sonyaihub/terminal-helper/internal/ui"
+	"github.com/sonyaihub/wut/internal/shell"
+	"github.com/sonyaihub/wut/internal/ui"
 )
 
 // marker that we grep for when deciding whether the rc file is already wired.
 // Kept short and human-readable; any of our install paths writes something
 // that contains this string.
-const hookMarker = "terminal-helper init"
+const hookMarker = "wut init"
 
 func NewInstallHookCmd() *cobra.Command {
 	var shellFlag string
@@ -23,7 +23,7 @@ func NewInstallHookCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "install-hook",
 		Short: "Add the shell hook to your rc file. Detects shell automatically.",
-		Long: `install-hook wires terminal-helper into your interactive shell.
+		Long: `install-hook wires wut into your interactive shell.
 
 For zsh/bash it appends a one-line eval to your rc file. For fish it writes
 the hook function to a conf.d file. All operations are idempotent.`,
@@ -34,9 +34,9 @@ the hook function to a conf.d file. All operations are idempotent.`,
 			}
 			switch sh {
 			case "zsh":
-				return installRcLine("zsh", rcPath("zsh"), `eval "$(terminal-helper init zsh)"`, yes)
+				return installRcLine("zsh", rcPath("zsh"), `eval "$(wut init zsh)"`, yes)
 			case "bash":
-				return installRcLine("bash", rcPath("bash"), `eval "$(terminal-helper init bash)"`, yes)
+				return installRcLine("bash", rcPath("bash"), `eval "$(wut init bash)"`, yes)
 			case "fish":
 				return installFishConfD(yes)
 			default:
@@ -76,7 +76,7 @@ func installRcLine(sh, path, line string, yes bool) error {
 	}
 	existing, _ := os.ReadFile(path)
 	if strings.Contains(string(existing), hookMarker) {
-		fmt.Printf("✓ %s already contains a terminal-helper hook — nothing to do\n", path)
+		fmt.Printf("✓ %s already contains a wut hook — nothing to do\n", path)
 		fmt.Printf("  open a new shell or run: source %s\n", path)
 		return nil
 	}
@@ -102,7 +102,7 @@ func installRcLine(sh, path, line string, yes bool) error {
 	if len(existing) > 0 && !strings.HasSuffix(string(existing), "\n") {
 		block.WriteByte('\n')
 	}
-	block.WriteString("\n# added by `terminal-helper install-hook`\n")
+	block.WriteString("\n# added by `wut install-hook`\n")
 	block.WriteString(line)
 	block.WriteByte('\n')
 	if _, err := f.WriteString(block.String()); err != nil {
@@ -117,7 +117,7 @@ func installRcLine(sh, path, line string, yes bool) error {
 func installFishConfD(yes bool) error {
 	home, _ := os.UserHomeDir()
 	dir := filepath.Join(home, ".config", "fish", "conf.d")
-	path := filepath.Join(dir, "terminal-helper.fish")
+	path := filepath.Join(dir, "wut.fish")
 
 	if _, err := os.Stat(path); err == nil {
 		fmt.Printf("✓ %s already exists — nothing to do\n", path)
@@ -136,7 +136,7 @@ func installFishConfD(yes bool) error {
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return fmt.Errorf("mkdir %s: %w", dir, err)
 	}
-	header := "# added by `terminal-helper install-hook`\n"
+	header := "# added by `wut install-hook`\n"
 	if err := os.WriteFile(path, []byte(header+shell.FishSnippet()), 0o644); err != nil {
 		return fmt.Errorf("write %s: %w", path, err)
 	}

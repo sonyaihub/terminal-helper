@@ -10,7 +10,7 @@ import (
 	"github.com/BurntSushi/toml"
 	"github.com/spf13/cobra"
 
-	"github.com/sonyaihub/terminal-helper/internal/config"
+	"github.com/sonyaihub/wut/internal/config"
 )
 
 func NewConfigCmd() *cobra.Command {
@@ -127,14 +127,14 @@ func getConfigKey(c *config.Config, key string) (string, error) {
 	case "behavior.headless_fallback":
 		return string(c.Behavior.HeadlessFallback), nil
 	}
-	return "", fmt.Errorf("unknown key %q — try `terminal-helper config get` (no arg) to see the full config", key)
+	return "", fmt.Errorf("unknown key %q — try `wut config get` (no arg) to see the full config", key)
 }
 
 func setConfigKey(c *config.Config, key, value string) error {
 	switch key {
 	case "active_harness":
 		if _, ok := c.Harness[value]; !ok {
-			return fmt.Errorf("no harness named %q — run `terminal-helper harness list`", value)
+			return fmt.Errorf("no harness named %q — run `wut harness list`", value)
 		}
 		c.ActiveHarness = value
 	case "default_mode":

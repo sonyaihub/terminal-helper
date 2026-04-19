@@ -35,7 +35,7 @@ All resolved at the classifier (Parse) layer before mode selection, so the
 | `\ foo bar` | Route | — | `foo bar` |
 | `!anything` | PassThrough | — | (unchanged) |
 
-## `terminal-helper setup`
+## `wut setup`
 - Non-interactive: `setup --harness <name> --mode <mode>` writes config
   directly. Validates both args against the parsed config.
 - Interactive: arrow-key picker for harness (annotates each entry as

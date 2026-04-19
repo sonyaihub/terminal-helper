@@ -6,7 +6,7 @@ import (
 )
 
 // Every shell snippet has to satisfy the same invariants: install a hook
-// function, guard against recursion if terminal-helper falls off PATH, and
+// function, guard against recursion if wut falls off PATH, and
 // honor the 127-means-passthrough exit contract. These tests pin those so a
 // regression in the embedded files (or the embed wiring) surfaces before we
 // ship broken shell integrations.
@@ -15,8 +15,8 @@ func TestZshSnippet(t *testing.T) {
 	s := ZshSnippet()
 	checks := []string{
 		"command_not_found_handler",     // zsh uses `_handler` with trailing r
-		"command -v terminal-helper",    // recursion guard
-		"terminal-helper detect --line", // actual hook call
+		"command -v wut",    // recursion guard
+		"wut detect --line", // actual hook call
 		"rc -eq 127",                    // 127 is the passthrough sentinel
 		"return $rc",                    // propagate handler/harness exit code
 	}
@@ -31,8 +31,8 @@ func TestBashSnippet(t *testing.T) {
 	s := BashSnippet()
 	checks := []string{
 		"command_not_found_handle",      // bash uses `_handle`, no trailing r
-		"command -v terminal-helper",    // recursion guard
-		"terminal-helper detect --line", // hook call
+		"command -v wut",    // recursion guard
+		"wut detect --line", // hook call
 		"BASH_VERSINFO",                 // bash-4+ gate
 		"rc -eq 127",
 		"return $rc",
@@ -53,8 +53,8 @@ func TestFishSnippet(t *testing.T) {
 	s := FishSnippet()
 	checks := []string{
 		"fish_command_not_found",        // fish's hook name
-		"command -v terminal-helper",    // recursion guard
-		"terminal-helper detect --line", // hook call
+		"command -v wut",    // recursion guard
+		"wut detect --line", // hook call
 		"set -l rc $status",             // fish uses $status, not $?
 		"test $rc -eq 127",              // fish test syntax
 		"return $rc",

@@ -5,7 +5,7 @@ real `ask` mode, markdown rendering for headless output, and the two
 per-prompt mode prefixes (`??` / `?!`).
 
 Scope (from spec §14 M3 + §13 open q 1a):
-- `terminal-helper setup` wizard (interactive + non-interactive forms)
+- `wut setup` wizard (interactive + non-interactive forms)
 - `ask` mode — prompt user which mode to use per invocation
 - `markdown` render mode (buffered output → ANSI)
 - Per-prompt prefixes: `??` forces headless, `?!` forces interactive
@@ -14,7 +14,7 @@ Scope (from spec §14 M3 + §13 open q 1a):
 |---|---|---|
 | 01 | Markdown renderer (buffered, ANSI) | done |
 | 02 | `ask` mode — TUI picker with interactive/headless/cancel | done |
-| 03 | `terminal-helper setup` wizard + non-interactive flags | done |
+| 03 | `wut setup` wizard + non-interactive flags | done |
 | 04 | Prompt-level prefixes (`??`, `?!`) in the classifier layer | done |
 | 05 | Tests + E2E | done |
 

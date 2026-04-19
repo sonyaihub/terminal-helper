@@ -6,7 +6,7 @@ passthrough tokens, `harness add`, and nicer error messages.
 Scope (from spec §14 M4):
 - `behavior.confirm` — Y/n prompt before launching the harness
 - `behavior.passthrough` — never route these first tokens even if NL-shaped
-- `terminal-helper harness add` — register a custom harness from the CLI
+- `wut harness add` — register a custom harness from the CLI
 - Audit + improve error messages
 
 | # | Step | Status |

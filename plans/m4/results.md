@@ -24,7 +24,7 @@ Verified: `howto use this thing now` → exit 127 (passthrough hit);
 ## `harness add`
 Creates a new harness block without hand-editing TOML.
 
-    terminal-helper harness add my-agent \
+    wut harness add my-agent \
       --command my-agent --args "--tui,{prompt}" \
       --headless-command my-agent --headless-args "--once,{prompt}" \
       --headless-render markdown --use
@@ -37,9 +37,9 @@ Creates a new harness block without hand-editing TOML.
 Before → after, user-visible paths:
 - `harness binary "X" not found on PATH: exec: …` →
   `harness binary "X" not found on PATH — install it, or run
-  \`terminal-helper setup\` to pick a different harness (…)`
+  \`wut setup\` to pick a different harness (…)`
 - `no harness named "X"` →
-  `no harness named "X" — run \`terminal-helper harness list\` to see
+  `no harness named "X" — run \`wut harness list\` to see
   available harnesses`
 - `harness "X" has no headless block and headless_fallback=error` →
   adds `either set default_mode=interactive, change the fallback, or

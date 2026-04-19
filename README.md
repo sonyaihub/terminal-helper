@@ -1,6 +1,6 @@
-# terminal-helper
+# wut
 
-You open a terminal, start typing `how do I rebase onto main without losing my stash`, and the shell yells `command not found`. terminal-helper catches that moment and hands the typed text off to your configured AI harness (Claude Code, aider, codex, or a custom CLI) as a prompt.
+You open a terminal, start typing `how do I rebase onto main without losing my stash`, and the shell yells `command not found`. wut catches that moment and hands the typed text off to your configured AI harness (Claude Code, aider, codex, or a custom CLI) as a prompt.
 
 Zero latency on normal commands — we only run when the shell has already decided your first token isn't a real command.
 
@@ -25,7 +25,7 @@ $ ls -la
 **curl | sh** — no Go required. Downloads the prebuilt binary from the latest GitHub release, verifies the sha256, and drops it in `/usr/local/bin` (or `~/.local/bin` if you can't sudo):
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/sonyaihub/terminal-helper/main/scripts/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/sonyaihub/wut/main/scripts/install.sh | sh
 ```
 
 Pin a version with `TH_VERSION=v0.1.0`, or override the install dir with `TH_INSTALL_DIR=...`.
@@ -33,39 +33,39 @@ Pin a version with `TH_VERSION=v0.1.0`, or override the install dir with `TH_INS
 **Homebrew**:
 
 ```sh
-brew install sonyaihub/tap/terminal-helper
+brew install sonyaihub/tap/wut
 ```
 
 **From source** (needs Go 1.26+):
 
 ```sh
-go install github.com/sonyaihub/terminal-helper/cmd/terminal-helper@latest
+go install github.com/sonyaihub/wut/cmd/wut@latest
 ```
 
 ## Setup
 
 ```sh
-terminal-helper setup            # pick your harness and default mode
-terminal-helper install-hook     # wire the hook into ~/.zshrc (or bash/fish)
+wut setup            # pick your harness and default mode
+wut install-hook     # wire the hook into ~/.zshrc (or bash/fish)
 ```
 
 Open a new shell, then:
 
 ```sh
-terminal-helper doctor           # sanity-check the install
+wut doctor           # sanity-check the install
 ```
 
 `install-hook` auto-detects your shell from `$SHELL`. Override with `--shell zsh|bash|fish`, add `-y` to skip the confirmation, or do it by hand if you'd rather:
 
 ```sh
 # zsh
-echo 'eval "$(terminal-helper init zsh)"' >> ~/.zshrc
+echo 'eval "$(wut init zsh)"' >> ~/.zshrc
 
 # bash (requires 4.0+; macOS stock bash is 3.2)
-echo 'eval "$(terminal-helper init bash)"' >> ~/.bashrc
+echo 'eval "$(wut init bash)"' >> ~/.bashrc
 
 # fish
-terminal-helper init fish > ~/.config/fish/conf.d/terminal-helper.fish
+wut init fish > ~/.config/fish/conf.d/wut.fish
 ```
 
 ## What it does
@@ -82,16 +82,16 @@ terminal-helper init fish > ~/.config/fish/conf.d/terminal-helper.fish
 
 | Command | Purpose |
 |---|---|
-| `terminal-helper install-hook` | Wire the hook into your shell's rc file. Idempotent; `--shell` to override detection, `-y` to skip prompt. |
-| `terminal-helper init zsh\|bash\|fish` | Print the shell-hook snippet (lower-level than `install-hook`). |
-| `terminal-helper setup` | Guided config wizard. Supports `--harness` / `--mode` for non-interactive use. |
-| `terminal-helper harness list\|use\|test\|add` | Manage harnesses. `use` takes `--command <bin>` to swap the binary of a preset (e.g. point claude at `claude-yolo`). `test` invokes directly without running detection. |
-| `terminal-helper detect --line "<text>"` | Classify + act. Used by the shell hook; exit 127 = pass through. |
-| `terminal-helper run --line "<text>" [--mode ...]` | Force a launch, skipping detection. |
-| `terminal-helper mode set <mode>` | Shortcut for `config set default_mode <mode>`. |
-| `terminal-helper config path\|edit\|get\|set` | Inspect or modify the config file. |
-| `terminal-helper doctor` | Verify config, harness binary, and hook install. |
-| `terminal-helper version` / `-v` / `--version` | Print version. |
+| `wut install-hook` | Wire the hook into your shell's rc file. Idempotent; `--shell` to override detection, `-y` to skip prompt. |
+| `wut init zsh\|bash\|fish` | Print the shell-hook snippet (lower-level than `install-hook`). |
+| `wut setup` | Guided config wizard. Supports `--harness` / `--mode` for non-interactive use. |
+| `wut harness list\|use\|test\|add` | Manage harnesses. `use` takes `--command <bin>` to swap the binary of a preset (e.g. point claude at `claude-yolo`). `test` invokes directly without running detection. |
+| `wut detect --line "<text>"` | Classify + act. Used by the shell hook; exit 127 = pass through. |
+| `wut run --line "<text>" [--mode ...]` | Force a launch, skipping detection. |
+| `wut mode set <mode>` | Shortcut for `config set default_mode <mode>`. |
+| `wut config path\|edit\|get\|set` | Inspect or modify the config file. |
+| `wut doctor` | Verify config, harness binary, and hook install. |
+| `wut version` / `-v` / `--version` | Print version. |
 
 ### Using a wrapper binary
 
@@ -100,7 +100,7 @@ If you already have a wrapper like `claude-yolo` that calls
 and keep the preset's args:
 
 ```sh
-terminal-helper harness use claude --command claude-yolo
+wut harness use claude --command claude-yolo
 ```
 
 That flips active to `claude` and rewrites `command = "claude-yolo"` in both
@@ -108,7 +108,7 @@ the interactive and headless blocks (leaving `args` intact).
 
 ## Configuration
 
-Lives at `~/.config/terminal-helper/config.toml` (or `$XDG_CONFIG_HOME/terminal-helper/config.toml`). Missing file is fine — presets for claude / aider / codex ship with the binary.
+Lives at `~/.config/wut/config.toml` (or `$XDG_CONFIG_HOME/wut/config.toml`). Missing file is fine — presets for claude / aider / codex ship with the binary.
 
 ```toml
 active_harness = "claude"
@@ -141,7 +141,7 @@ Full schema is in [`spec.md`](./spec.md) §7.
 ## Development
 
 ```sh
-go build ./cmd/terminal-helper
+go build ./cmd/wut
 go test ./...
 ```
 
@@ -149,4 +149,4 @@ Design docs and milestone plans live in [`plans/`](./plans/). Start with [`spec.
 
 ## Security
 
-terminal-helper only passes the detected text as a string argument to a user-configured local binary. It never executes the detected text as a shell command, never makes network calls on its own, and has no telemetry.
+wut only passes the detected text as a string argument to a user-configured local binary. It never executes the detected text as a shell command, never makes network calls on its own, and has no telemetry.

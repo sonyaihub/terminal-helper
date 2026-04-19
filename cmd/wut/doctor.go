@@ -10,7 +10,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/sonyaihub/terminal-helper/internal/config"
+	"github.com/sonyaihub/wut/internal/config"
 )
 
 func NewDoctorCmd() *cobra.Command {
@@ -59,7 +59,7 @@ func NewDoctorCmd() *cobra.Command {
 				fmt.Printf("✓ shell hook: %s\n", hint)
 			} else {
 				fmt.Printf("- shell hook: %s\n", hint)
-				fmt.Printf("  run `terminal-helper install-hook` to wire it up\n")
+				fmt.Printf("  run `wut install-hook` to wire it up\n")
 			}
 
 			if !ok {
@@ -87,7 +87,7 @@ func checkHookInstall() (bool, string) {
 	case "bash":
 		candidate = filepath.Join(home, ".bashrc")
 	case "fish":
-		candidate = filepath.Join(home, ".config", "fish", "conf.d", "terminal-helper.fish")
+		candidate = filepath.Join(home, ".config", "fish", "conf.d", "wut.fish")
 	default:
 		return false, fmt.Sprintf("unrecognized $SHELL (%q) — not checking rc file", sh)
 	}
@@ -95,10 +95,10 @@ func checkHookInstall() (bool, string) {
 	if err != nil {
 		return false, fmt.Sprintf("%s not readable or missing", candidate)
 	}
-	// install-hook leaves this marker; handwritten `eval "$(terminal-helper init
-	// zsh)"` also matches because `terminal-helper init` is part of both.
-	if strings.Contains(string(data), "terminal-helper init") {
+	// install-hook leaves this marker; handwritten `eval "$(wut init
+	// zsh)"` also matches because `wut init` is part of both.
+	if strings.Contains(string(data), "wut init") {
 		return true, candidate
 	}
-	return false, fmt.Sprintf("%s exists but contains no terminal-helper hook", candidate)
+	return false, fmt.Sprintf("%s exists but contains no wut hook", candidate)
 }

@@ -18,21 +18,21 @@ go get github.com/spf13/cobra@latest
 
 Files to create/modify:
 
-- `cmd/terminal-helper/root.go` — `NewRootCmd() *cobra.Command` returning a root command with `Use: "terminal-helper"`, short description matching the spec §1 one-liner, and no default action (print help on bare invocation).
-- `cmd/terminal-helper/version.go` — `NewVersionCmd()` returning a `version` subcommand that prints a package-level `Version = "0.0.0-dev"` constant.
-- `cmd/terminal-helper/main.go` — replace body with: build root, register `version`, `Execute()`. On error, exit 1.
+- `cmd/wut/root.go` — `NewRootCmd() *cobra.Command` returning a root command with `Use: "wut"`, short description matching the spec §1 one-liner, and no default action (print help on bare invocation).
+- `cmd/wut/version.go` — `NewVersionCmd()` returning a `version` subcommand that prints a package-level `Version = "0.0.0-dev"` constant.
+- `cmd/wut/main.go` — replace body with: build root, register `version`, `Execute()`. On error, exit 1.
 
 The `Version` const should live at the top of `root.go` (or a new `version.go` constant file) so step 10+ can bump it from `goreleaser` metadata later.
 
 ## How to verify
 
 ```
-go build ./cmd/terminal-helper
-./terminal-helper                # prints help
-./terminal-helper --help         # prints help
-./terminal-helper version        # prints: 0.0.0-dev
-./terminal-helper version; echo $?   # exit 0
-./terminal-helper bogus          # exits non-zero with Cobra "unknown command" error
+go build ./cmd/wut
+./wut                # prints help
+./wut --help         # prints help
+./wut version        # prints: 0.0.0-dev
+./wut version; echo $?   # exit 0
+./wut bogus          # exits non-zero with Cobra "unknown command" error
 ```
 
 `go vet ./...` still clean.

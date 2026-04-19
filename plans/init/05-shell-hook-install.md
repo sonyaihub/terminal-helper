@@ -1,7 +1,7 @@
 # 05 — Shell hook install
 
 ## Description
-Actually wire the snippet into a live zsh and confirm the round-trip: an unresolved first-token runs our handler, our handler invokes `terminal-helper detect`, and the exit code of detect controls whether the user sees `command not found`.
+Actually wire the snippet into a live zsh and confirm the round-trip: an unresolved first-token runs our handler, our handler invokes `wut detect`, and the exit code of detect controls whether the user sees `command not found`.
 
 No code changes in this step — it's an integration checkpoint.
 
@@ -17,10 +17,10 @@ Install the binary on `PATH` and source the snippet:
 
 ```
 # install binary to a location on PATH
-go install ./cmd/terminal-helper
+go install ./cmd/wut
 
 # or, for iteration, symlink the repo build
-ln -sf "$PWD/terminal-helper" /usr/local/bin/terminal-helper
+ln -sf "$PWD/wut" /usr/local/bin/wut
 ```
 
 Wire the hook into the current shell only (do **not** touch `~/.zshrc` yet — use a sandbox rc):
@@ -29,7 +29,7 @@ Wire the hook into the current shell only (do **not** touch `~/.zshrc` yet — u
 # write a sandbox rc
 cat > /tmp/th-test.zshrc <<'EOF'
 source ~/.zshrc 2>/dev/null || true
-eval "$(terminal-helper init zsh)"
+eval "$(wut init zsh)"
 PROMPT='th-test$ '
 EOF
 
@@ -39,7 +39,7 @@ ZDOTDIR=/tmp zsh -i
 zsh -c 'source /tmp/th-test.zshrc; exec zsh -i'
 ```
 
-Simpler, if you're comfortable: `eval "$(terminal-helper init zsh)"` in your current interactive shell for the duration of testing. Undo by opening a new terminal.
+Simpler, if you're comfortable: `eval "$(wut init zsh)"` in your current interactive shell for the duration of testing. Undo by opening a new terminal.
 
 ## How to verify
 
@@ -47,7 +47,7 @@ In the hooked shell:
 
 ```
 foobar
-# stderr (from detect): terminal-helper: detect received: foobar
+# stderr (from detect): wut: detect received: foobar
 # stderr (from handler fallthrough): zsh: command not found: foobar
 # exit: 127
 
@@ -64,4 +64,4 @@ Pass criteria:
 3. No lag perceptible on real commands.
 
 If `foobar` shows the detect log but no `command not found`, the snippet isn't returning 127 on fall-through — revisit step 03.
-If `foobar` shows `command not found` but no detect log, the handler isn't calling `terminal-helper` — check PATH and snippet.
+If `foobar` shows `command not found` but no detect log, the handler isn't calling `wut` — check PATH and snippet.

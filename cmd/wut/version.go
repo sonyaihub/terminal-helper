@@ -9,7 +9,7 @@ import (
 func NewVersionCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "version",
-		Short: "Print the terminal-helper version.",
+		Short: "Print the wut version.",
 		Run: func(cmd *cobra.Command, args []string) {
 			fmt.Println(Version)
 		},

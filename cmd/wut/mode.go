@@ -5,13 +5,13 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/sonyaihub/terminal-helper/internal/config"
+	"github.com/sonyaihub/wut/internal/config"
 )
 
 func NewModeCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "mode",
-		Short: "Change default_mode. (Inspect with `terminal-helper config get default_mode`.)",
+		Short: "Change default_mode. (Inspect with `wut config get default_mode`.)",
 	}
 	cmd.AddCommand(newModeSet())
 	return cmd

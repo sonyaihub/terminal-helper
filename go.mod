@@ -1,4 +1,4 @@
-module github.com/sonyaihub/terminal-helper
+module github.com/sonyaihub/wut
 
 go 1.26
 

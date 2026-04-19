@@ -7,10 +7,10 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/sonyaihub/terminal-helper/internal/config"
-	"github.com/sonyaihub/terminal-helper/internal/detect"
-	"github.com/sonyaihub/terminal-helper/internal/harness"
-	"github.com/sonyaihub/terminal-helper/internal/ui"
+	"github.com/sonyaihub/wut/internal/config"
+	"github.com/sonyaihub/wut/internal/detect"
+	"github.com/sonyaihub/wut/internal/harness"
+	"github.com/sonyaihub/wut/internal/ui"
 )
 
 func NewDetectCmd() *cobra.Command {
@@ -56,7 +56,7 @@ func NewDetectCmd() *cobra.Command {
 func runHarness(cmd *cobra.Command, cfg *config.Config, name string, mode config.Mode, prompt string) error {
 	h, ok := cfg.Harness[name]
 	if !ok {
-		return fmt.Errorf("no harness named %q — run `terminal-helper harness list` to see available harnesses", name)
+		return fmt.Errorf("no harness named %q — run `wut harness list` to see available harnesses", name)
 	}
 
 	// Ask mode — interactive picker. On non-tty or cancel, fall through to
@@ -67,7 +67,7 @@ func runHarness(cmd *cobra.Command, cfg *config.Config, name string, mode config
 			if errors.Is(err, ui.ErrCancelled) {
 				return nil // user chose cancel — treat as handled, exit 0
 			}
-			fmt.Fprintf(os.Stderr, "terminal-helper: ask mode unavailable (%v), using interactive\n", err)
+			fmt.Fprintf(os.Stderr, "wut: ask mode unavailable (%v), using interactive\n", err)
 			mode = config.ModeInteractive
 		} else {
 			mode = chosen
@@ -102,7 +102,7 @@ func runHarness(cmd *cobra.Command, cfg *config.Config, name string, mode config
 			}
 			// No tty — default to proceeding rather than surprising the user
 			// with a silent no-op.
-			fmt.Fprintf(os.Stderr, "terminal-helper: confirm unavailable (%v), proceeding\n", err)
+			fmt.Fprintf(os.Stderr, "wut: confirm unavailable (%v), proceeding\n", err)
 		} else if !ok {
 			return nil // user declined — handled, exit 0
 		}

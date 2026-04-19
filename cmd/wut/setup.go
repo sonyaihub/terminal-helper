@@ -7,8 +7,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/sonyaihub/terminal-helper/internal/config"
-	"github.com/sonyaihub/terminal-helper/internal/ui"
+	"github.com/sonyaihub/wut/internal/config"
+	"github.com/sonyaihub/wut/internal/ui"
 )
 
 func NewSetupCmd() *cobra.Command {
@@ -25,7 +25,7 @@ func NewSetupCmd() *cobra.Command {
 			// Non-interactive path — both flags supplied, no prompts needed.
 			if harnessFlag != "" && modeFlag != "" {
 				if _, ok := cfg.Harness[harnessFlag]; !ok {
-					return fmt.Errorf("no harness named %q (see `terminal-helper harness list`)", harnessFlag)
+					return fmt.Errorf("no harness named %q (see `wut harness list`)", harnessFlag)
 				}
 				if !isKnownMode(modeFlag) {
 					return fmt.Errorf("mode %q is not one of interactive|headless|ask", modeFlag)
@@ -60,7 +60,7 @@ func NewSetupCmd() *cobra.Command {
 				return err
 			}
 			fmt.Printf("✔ wrote %s (harness=%s, mode=%s)\n", path, chosenHarness, chosenMode)
-			fmt.Println("  run `terminal-helper doctor` to verify")
+			fmt.Println("  run `wut doctor` to verify")
 			return nil
 		},
 	}

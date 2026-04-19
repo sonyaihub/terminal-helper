@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-// withXDGConfigHome points terminal-helper at an isolated config dir for the
+// withXDGConfigHome points wut at an isolated config dir for the
 // duration of a subtest so CLI tests can't read or write the real user's
 // config file.
 func withXDGConfigHome(t *testing.T) string {
@@ -73,7 +73,7 @@ func TestInitPrintsAllThreeShells(t *testing.T) {
 		}
 		// Same invariant the shell-package tests check, re-verified at the CLI
 		// boundary to catch wiring regressions.
-		if !strings.Contains(out, "terminal-helper detect --line") {
+		if !strings.Contains(out, "wut detect --line") {
 			t.Errorf("%s snippet missing hook call:\n%s", shell, out)
 		}
 	}
@@ -112,7 +112,7 @@ func TestHarnessAddAndUseRoundTrip(t *testing.T) {
 		t.Fatalf("active flag didn't move to custom:\n%s", out)
 	}
 	// Config file on disk should reflect the change.
-	raw, _ := os.ReadFile(filepath.Join(dir, "terminal-helper", "config.toml"))
+	raw, _ := os.ReadFile(filepath.Join(dir, "wut", "config.toml"))
 	if !strings.Contains(string(raw), `active_harness = "custom"`) {
 		t.Errorf("config.toml doesn't show active_harness=custom:\n%s", raw)
 	}
@@ -163,7 +163,7 @@ func TestSetupNonInteractive(t *testing.T) {
 	if _, err := runCLI(t, "setup", "--harness", "codex", "--mode", "headless"); err != nil {
 		t.Fatalf("setup: %v", err)
 	}
-	raw, _ := os.ReadFile(filepath.Join(dir, "terminal-helper", "config.toml"))
+	raw, _ := os.ReadFile(filepath.Join(dir, "wut", "config.toml"))
 	got := string(raw)
 	if !strings.Contains(got, `active_harness = "codex"`) {
 		t.Errorf("active_harness not set:\n%s", got)
