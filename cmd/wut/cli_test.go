@@ -6,6 +6,9 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/sonyaihub/wut/internal/config"
+	"github.com/sonyaihub/wut/internal/detect"
 )
 
 // withXDGConfigHome points wut at an isolated config dir for the
@@ -31,6 +34,7 @@ func runCLI(t *testing.T, args ...string) (string, error) {
 	root.AddCommand(NewModeCmd())
 	root.AddCommand(NewConfigCmd())
 	root.AddCommand(NewSetupCmd())
+	root.AddCommand(NewKeywordsCmd())
 
 	// Pipe os.Stdout into a buffer for the duration of this call.
 	r, w, _ := os.Pipe()
@@ -176,6 +180,141 @@ func TestModeSetRejectsInvalid(t *testing.T) {
 	withXDGConfigHome(t)
 	if _, err := runCLI(t, "mode", "set", "bogus"); err == nil {
 		t.Fatal("mode set bogus should error")
+	}
+}
+
+func TestKeywordsAddFirstWordAndListRoundTrip(t *testing.T) {
+	dir := withXDGConfigHome(t)
+	if _, err := runCLI(t, "keywords", "add", "deploy", "--first-word"); err != nil {
+		t.Fatalf("keywords add: %v", err)
+	}
+	out, err := runCLI(t, "keywords", "list")
+	if err != nil {
+		t.Fatalf("keywords list: %v", err)
+	}
+	if !strings.Contains(out, "- deploy") {
+		t.Errorf("list missing added keyword:\n%s", out)
+	}
+	// Persisted in the correct section of the TOML file.
+	raw, err := os.ReadFile(filepath.Join(dir, "wut", "config.toml"))
+	if err != nil {
+		t.Fatalf("read config.toml: %v", err)
+	}
+	got := string(raw)
+	if !strings.Contains(got, "extra_interrogatives") || !strings.Contains(got, "deploy") {
+		t.Errorf("config.toml missing extra_interrogatives=deploy:\n%s", got)
+	}
+}
+
+func TestKeywordsAddAnywhereWritesStopwords(t *testing.T) {
+	dir := withXDGConfigHome(t)
+	if _, err := runCLI(t, "keywords", "add", "pls", "--anywhere"); err != nil {
+		t.Fatalf("keywords add: %v", err)
+	}
+	raw, err := os.ReadFile(filepath.Join(dir, "wut", "config.toml"))
+	if err != nil {
+		t.Fatalf("read config.toml: %v", err)
+	}
+	got := string(raw)
+	if !strings.Contains(got, "extra_stopwords") || !strings.Contains(got, "pls") {
+		t.Errorf("config.toml missing extra_stopwords=pls:\n%s", got)
+	}
+}
+
+func TestKeywordsAddIsIdempotent(t *testing.T) {
+	withXDGConfigHome(t)
+	if _, err := runCLI(t, "keywords", "add", "deploy", "--first-word"); err != nil {
+		t.Fatalf("first add: %v", err)
+	}
+	out, err := runCLI(t, "keywords", "add", "deploy", "--first-word")
+	if err != nil {
+		t.Fatalf("second add: %v", err)
+	}
+	if !strings.Contains(out, "already in") {
+		t.Errorf("second add should report duplicate, got:\n%s", out)
+	}
+}
+
+func TestKeywordsAddRejectsConflictingFlags(t *testing.T) {
+	withXDGConfigHome(t)
+	if _, err := runCLI(t, "keywords", "add", "foo", "--first-word", "--anywhere"); err == nil {
+		t.Fatal("expected error for both flags, got nil")
+	}
+}
+
+func TestKeywordsAddRejectsWhitespace(t *testing.T) {
+	withXDGConfigHome(t)
+	if _, err := runCLI(t, "keywords", "add", "two words", "--first-word"); err == nil {
+		t.Fatal("whitespace keyword should error")
+	}
+}
+
+func TestKeywordsRemoveDisambiguatesWhenInBothSets(t *testing.T) {
+	withXDGConfigHome(t)
+	if _, err := runCLI(t, "keywords", "add", "shared", "--first-word"); err != nil {
+		t.Fatalf("add first-word: %v", err)
+	}
+	if _, err := runCLI(t, "keywords", "add", "shared", "--anywhere"); err != nil {
+		t.Fatalf("add anywhere: %v", err)
+	}
+	// Without a flag the command must refuse.
+	if _, err := runCLI(t, "keywords", "remove", "shared"); err == nil {
+		t.Fatal("remove without flag in both-sets case should error")
+	}
+	// Targeted removal leaves the other set intact.
+	if _, err := runCLI(t, "keywords", "remove", "shared", "--first-word"); err != nil {
+		t.Fatalf("remove --first-word: %v", err)
+	}
+	out, _ := runCLI(t, "keywords", "list")
+	firstIdx := strings.Index(out, "First-word triggers")
+	anywhereIdx := strings.Index(out, "Anywhere signals")
+	if firstIdx < 0 || anywhereIdx < 0 || firstIdx > anywhereIdx {
+		t.Fatalf("list output not in expected shape:\n%s", out)
+	}
+	firstSection := out[firstIdx:anywhereIdx]
+	anywhereSection := out[anywhereIdx:]
+	if strings.Contains(firstSection, "shared") {
+		t.Errorf("shared should be gone from first-word section:\n%s", firstSection)
+	}
+	if !strings.Contains(anywhereSection, "shared") {
+		t.Errorf("shared should remain in anywhere section:\n%s", anywhereSection)
+	}
+}
+
+func TestKeywordsRemoveMissingErrors(t *testing.T) {
+	withXDGConfigHome(t)
+	if _, err := runCLI(t, "keywords", "remove", "ghost"); err == nil {
+		t.Fatal("removing nonexistent keyword should error")
+	}
+}
+
+// TestKeywordsDriveClassifier proves the config written by `keywords add`
+// actually flips the classifier's decision — catches wiring regressions
+// between the CLI, config serialisation, and internal/detect.
+func TestKeywordsDriveClassifier(t *testing.T) {
+	withXDGConfigHome(t)
+	if _, err := runCLI(t, "keywords", "add", "deploy", "--first-word"); err != nil {
+		t.Fatalf("add first-word: %v", err)
+	}
+	if _, err := runCLI(t, "keywords", "add", "pls", "--anywhere"); err != nil {
+		t.Fatalf("add anywhere: %v", err)
+	}
+	path, err := config.DefaultPath()
+	if err != nil {
+		t.Fatalf("default path: %v", err)
+	}
+	cfg, err := config.Load(path)
+	if err != nil {
+		t.Fatalf("load: %v", err)
+	}
+	opts := detect.Options{
+		ExtraInterrogatives: cfg.Detection.ExtraInterrogatives,
+		ExtraStopwords:      cfg.Detection.ExtraStopwords,
+	}
+	// "deploy the service pls" has 0 signals before; with both extras it
+	// now carries an interrogative (deploy) and a stopword (pls) → Route.
+	if got := detect.Classify("deploy the service pls", opts); got != detect.Route {
+		t.Errorf("classifier didn't pick up added keywords; got %v", got)
 	}
 }
 

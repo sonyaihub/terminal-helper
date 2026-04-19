@@ -14,6 +14,7 @@ func main() {
 	root.AddCommand(NewRunCmd())
 	root.AddCommand(NewModeCmd())
 	root.AddCommand(NewConfigCmd())
+	root.AddCommand(NewKeywordsCmd())
 	if err := root.Execute(); err != nil {
 		os.Exit(1)
 	}
