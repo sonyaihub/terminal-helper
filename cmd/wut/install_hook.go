@@ -8,8 +8,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/sonyaihub/wut/internal/shell"
-	"github.com/sonyaihub/wut/internal/ui"
+	"github.com/sonyabytes/wut/internal/shell"
+	"github.com/sonyabytes/wut/internal/ui"
 )
 
 // marker that we grep for when deciding whether the rc file is already wired.

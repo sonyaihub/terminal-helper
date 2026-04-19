@@ -8,7 +8,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/sonyaihub/wut/internal/ui"
+	"github.com/sonyabytes/wut/internal/ui"
 )
 
 // Placement names map to the two user-extensible classifier sets.

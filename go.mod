@@ -1,4 +1,4 @@
-module github.com/sonyaihub/wut
+module github.com/sonyabytes/wut
 
 go 1.26
 

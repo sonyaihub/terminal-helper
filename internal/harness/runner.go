@@ -8,7 +8,7 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/sonyaihub/wut/internal/config"
+	"github.com/sonyabytes/wut/internal/config"
 )
 
 // Runner executes a prompt against a harness.

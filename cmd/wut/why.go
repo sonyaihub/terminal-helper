@@ -6,7 +6,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/sonyaihub/wut/internal/detect"
+	"github.com/sonyabytes/wut/internal/detect"
 )
 
 func NewWhyCmd() *cobra.Command {

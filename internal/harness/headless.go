@@ -16,8 +16,8 @@ import (
 
 	"golang.org/x/term"
 
-	"github.com/sonyaihub/wut/internal/config"
-	"github.com/sonyaihub/wut/internal/render"
+	"github.com/sonyabytes/wut/internal/config"
+	"github.com/sonyabytes/wut/internal/render"
 )
 
 // HeadlessOptions tunes the non-invocation knobs that come from the top-level
