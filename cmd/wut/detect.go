@@ -7,10 +7,10 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/sonyaihub/wut/internal/config"
-	"github.com/sonyaihub/wut/internal/detect"
-	"github.com/sonyaihub/wut/internal/harness"
-	"github.com/sonyaihub/wut/internal/ui"
+	"github.com/sonyabytes/wut/internal/config"
+	"github.com/sonyabytes/wut/internal/detect"
+	"github.com/sonyabytes/wut/internal/harness"
+	"github.com/sonyabytes/wut/internal/ui"
 )
 
 func NewDetectCmd() *cobra.Command {

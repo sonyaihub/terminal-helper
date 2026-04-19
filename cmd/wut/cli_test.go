@@ -7,8 +7,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/sonyaihub/wut/internal/config"
-	"github.com/sonyaihub/wut/internal/detect"
+	"github.com/sonyabytes/wut/internal/config"
+	"github.com/sonyabytes/wut/internal/detect"
 )
 
 // withXDGConfigHome points wut at an isolated config dir for the

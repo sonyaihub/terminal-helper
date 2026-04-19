@@ -25,7 +25,7 @@ $ ls -la
 **curl | sh** — no Go required. Downloads the prebuilt binary from the latest GitHub release, verifies the sha256, and drops it in `/usr/local/bin` (or `~/.local/bin` if you can't sudo):
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/sonyaihub/wut/main/scripts/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/sonyabytes/wut/main/scripts/install.sh | sh
 ```
 
 Pin a version with `TH_VERSION=v0.1.0`, or override the install dir with `TH_INSTALL_DIR=...`.
@@ -33,13 +33,13 @@ Pin a version with `TH_VERSION=v0.1.0`, or override the install dir with `TH_INS
 **Homebrew**:
 
 ```sh
-brew install sonyaihub/tap/wut
+brew install sonyabytes/tap/wut
 ```
 
 **From source** (needs Go 1.26+):
 
 ```sh
-go install github.com/sonyaihub/wut/cmd/wut@latest
+go install github.com/sonyabytes/wut/cmd/wut@latest
 ```
 
 ## Setup

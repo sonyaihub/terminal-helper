@@ -5,7 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/sonyaihub/wut/internal/config"
+	"github.com/sonyabytes/wut/internal/config"
 )
 
 func NewModeCmd() *cobra.Command {

@@ -6,7 +6,7 @@
 # toolchain is available and no matching release asset is found.
 #
 # Usage:
-#   curl -fsSL https://raw.githubusercontent.com/sonyaihub/wut/main/scripts/install.sh | sh
+#   curl -fsSL https://raw.githubusercontent.com/sonyabytes/wut/main/scripts/install.sh | sh
 #
 # Env overrides:
 #   TH_VERSION=v0.1.2     install a specific tag (default: latest)
@@ -17,7 +17,7 @@
 
 set -eu
 
-OWNER="sonyaihub"
+OWNER="sonyabytes"
 REPO="wut"
 BIN="wut"
 

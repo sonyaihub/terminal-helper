@@ -3,7 +3,7 @@ package harness
 import (
 	"strings"
 
-	"github.com/sonyaihub/wut/internal/config"
+	"github.com/sonyabytes/wut/internal/config"
 )
 
 const promptToken = "{prompt}"
