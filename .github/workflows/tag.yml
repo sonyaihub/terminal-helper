@@ -32,7 +32,13 @@ jobs:
       - id: bump
         uses: mathieudutour/github-tag-action@v6.2
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          # Must be a PAT (or GitHub App token) — NOT the default
+          # secrets.GITHUB_TOKEN. GitHub deliberately suppresses downstream
+          # workflow runs for pushes made with GITHUB_TOKEN, which would mean
+          # this tag push never triggers release.yml. The PAT needs `repo`
+          # scope (or `contents: write` fine-grained) and must be stored as
+          # the PERSONAL_ACCESS_TOKEN repository secret.
+          github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           default_bump: patch
           release_branches: main
           tag_prefix: v

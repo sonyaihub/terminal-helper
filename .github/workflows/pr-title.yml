@@ -37,6 +37,6 @@ jobs:
           requireScope: false
           # Subject must start lowercase — matches the existing commit log
           # (feat: ..., refactor: ..., etc.).
-          subjectPattern: ^[a-z].+$
+          subjectPattern: ^[a-z].*$
           subjectPatternError: |
             The subject "{subject}" must start with a lowercase letter.
