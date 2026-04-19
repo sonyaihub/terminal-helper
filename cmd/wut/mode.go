@@ -11,10 +11,26 @@ import (
 func NewModeCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "mode",
-		Short: "Change default_mode. (Inspect with `wut config get default_mode`.)",
+		Short: "Inspect or change default_mode.",
 	}
-	cmd.AddCommand(newModeSet())
+	cmd.AddCommand(newModeGet(), newModeSet())
 	return cmd
+}
+
+func newModeGet() *cobra.Command {
+	return &cobra.Command{
+		Use:   "get",
+		Short: "Print the current default_mode.",
+		Args:  cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cfg, _, err := loadConfig()
+			if err != nil {
+				return err
+			}
+			fmt.Println(string(cfg.DefaultMode))
+			return nil
+		},
+	}
 }
 
 func newModeSet() *cobra.Command {

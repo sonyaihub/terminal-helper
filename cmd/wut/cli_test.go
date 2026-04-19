@@ -151,6 +151,27 @@ func TestModeSetWritesDefaultMode(t *testing.T) {
 	}
 }
 
+func TestModeGetReflectsDefaultMode(t *testing.T) {
+	withXDGConfigHome(t)
+	out, err := runCLI(t, "mode", "get")
+	if err != nil {
+		t.Fatalf("mode get: %v", err)
+	}
+	if strings.TrimSpace(out) != "interactive" {
+		t.Errorf("mode get default = %q, want interactive", out)
+	}
+	if _, err := runCLI(t, "mode", "set", "headless"); err != nil {
+		t.Fatalf("mode set: %v", err)
+	}
+	out, err = runCLI(t, "mode", "get")
+	if err != nil {
+		t.Fatalf("mode get after set: %v", err)
+	}
+	if strings.TrimSpace(out) != "headless" {
+		t.Errorf("mode get after set = %q, want headless", out)
+	}
+}
+
 func TestModeSetRejectsInvalid(t *testing.T) {
 	withXDGConfigHome(t)
 	if _, err := runCLI(t, "mode", "set", "bogus"); err == nil {
