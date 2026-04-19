@@ -15,6 +15,7 @@ func NewRootCmd() *cobra.Command {
 		SilenceUsage:  true,
 		SilenceErrors: false,
 	}
+	cmd.CompletionOptions.DisableDefaultCmd = true
 	// Cobra's default --version flag has no short form; add -v explicitly.
 	cmd.Flags().BoolP("version", "v", false, "print version and exit")
 	// Match the `version` subcommand's output ("0.0.1\n") rather than

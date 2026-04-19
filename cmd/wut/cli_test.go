@@ -35,6 +35,7 @@ func runCLI(t *testing.T, args ...string) (string, error) {
 	root.AddCommand(NewConfigCmd())
 	root.AddCommand(NewSetupCmd())
 	root.AddCommand(NewKeywordsCmd())
+	root.AddCommand(NewCompletionCmd())
 	root.AddCommand(NewWhyCmd())
 
 	// Pipe os.Stdout into a buffer for the duration of this call.
@@ -319,6 +320,82 @@ func TestKeywordsDriveClassifier(t *testing.T) {
 	}
 }
 
+func TestHarnessRemoveNonActive(t *testing.T) {
+	dir := withXDGConfigHome(t)
+	if _, err := runCLI(t, "harness", "add", "custom", "--command", "/bin/echo"); err != nil {
+		t.Fatalf("harness add: %v", err)
+	}
+	if _, err := runCLI(t, "harness", "remove", "custom"); err != nil {
+		t.Fatalf("harness remove: %v", err)
+	}
+	out, _ := runCLI(t, "harness", "list")
+	if strings.Contains(out, "custom") {
+		t.Errorf("removed harness still appears in list:\n%s", out)
+	}
+	raw, _ := os.ReadFile(filepath.Join(dir, "wut", "config.toml"))
+	if strings.Contains(string(raw), "custom") {
+		t.Errorf("removed harness still in config.toml:\n%s", raw)
+	}
+}
+
+func TestHarnessRemoveActiveRequiresForce(t *testing.T) {
+	withXDGConfigHome(t)
+	_, err := runCLI(t, "harness", "remove", "claude")
+	if err == nil {
+		t.Fatal("expected error removing active harness without --force")
+	}
+	if !strings.Contains(err.Error(), "--force") {
+		t.Errorf("error should mention --force, got: %v", err)
+	}
+}
+
+func TestHarnessRemoveActiveWithForceSwitchesToNext(t *testing.T) {
+	dir := withXDGConfigHome(t)
+	// Default active is claude; alphabetically next among presets is aider.
+	out, err := runCLI(t, "harness", "remove", "claude", "--force")
+	if err != nil {
+		t.Fatalf("harness remove --force: %v", err)
+	}
+	if !strings.Contains(out, "aider") {
+		t.Errorf("expected active_harness to switch to aider, output:\n%s", out)
+	}
+	raw, _ := os.ReadFile(filepath.Join(dir, "wut", "config.toml"))
+	if !strings.Contains(string(raw), `active_harness = "aider"`) {
+		t.Errorf("config.toml should have active_harness=aider:\n%s", raw)
+	}
+	if strings.Contains(string(raw), `[harness.claude]`) {
+		t.Errorf("claude harness should be gone from config.toml:\n%s", raw)
+	}
+}
+
+func TestHarnessRemoveLastHarnessRefused(t *testing.T) {
+	// config.Load merges the on-disk harness map with Defaults(), so the
+	// "only remaining harness" path cannot be reached purely through the CLI
+	// (preset harnesses always re-appear after a load). Test the helper
+	// directly — it is the exact code guarding that error path.
+	only := map[string]config.Harness{
+		"solo": {Interactive: &config.Invocation{Command: "/bin/echo", Args: []string{"{prompt}"}}},
+	}
+	_, err := nextHarnessAfterRemoval(only, "solo")
+	if err == nil {
+		t.Fatal("expected error when removing the only remaining harness")
+	}
+	if !strings.Contains(err.Error(), "only remaining harness") {
+		t.Errorf("error should mention only remaining harness, got: %v", err)
+	}
+}
+
+func TestHarnessRemoveUnknownErrors(t *testing.T) {
+	withXDGConfigHome(t)
+	_, err := runCLI(t, "harness", "remove", "ghost")
+	if err == nil {
+		t.Fatal("expected error removing nonexistent harness")
+	}
+	if !strings.Contains(err.Error(), "ghost") {
+		t.Errorf("error should mention harness name, got: %v", err)
+	}
+}
+
 func TestSetupNonInteractive(t *testing.T) {
 	dir := withXDGConfigHome(t)
 	if _, err := runCLI(t, "setup", "--harness", "codex", "--mode", "headless"); err != nil {
@@ -362,5 +439,42 @@ func TestWhyPassthroughHardGate(t *testing.T) {
 	}
 	if !strings.Contains(out, "hard gate") {
 		t.Errorf("expected 'hard gate' mention in output:\n%s", out)
+	}
+}
+
+func TestCompletionZshContainsFunction(t *testing.T) {
+	out, err := runCLI(t, "completion", "zsh")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(out, "_wut") {
+		t.Errorf("zsh completion missing _wut function:\n%s", out)
+	}
+}
+
+func TestCompletionBashContainsFunction(t *testing.T) {
+	out, err := runCLI(t, "completion", "bash")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(out, "_wut_") {
+		t.Errorf("bash completion missing _wut_ prefix:\n%s", out)
+	}
+}
+
+func TestCompletionFishContainsDirective(t *testing.T) {
+	out, err := runCLI(t, "completion", "fish")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(out, "complete -c wut") {
+		t.Errorf("fish completion missing 'complete -c wut':\n%s", out)
+	}
+}
+
+func TestCompletionUnknownShellErrors(t *testing.T) {
+	_, err := runCLI(t, "completion", "tcsh")
+	if err == nil {
+		t.Fatal("completion tcsh should error")
 	}
 }
