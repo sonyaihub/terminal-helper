@@ -103,7 +103,7 @@ func TestHarnessListShowsPresets(t *testing.T) {
 	if err != nil {
 		t.Fatalf("harness list: %v", err)
 	}
-	for _, want := range []string{"claude", "aider", "codex"} {
+	for _, want := range []string{"claude", "codex", "opencode"} {
 		if !strings.Contains(out, want) {
 			t.Errorf("harness list missing preset %q:\n%s", want, out)
 		}
@@ -363,17 +363,17 @@ func TestHarnessRemoveActiveRequiresForce(t *testing.T) {
 
 func TestHarnessRemoveActiveWithForceSwitchesToNext(t *testing.T) {
 	dir := withXDGConfigHome(t)
-	// Default active is claude; alphabetically next among presets is aider.
+	// Default active is claude; alphabetically next among presets is codex.
 	out, err := runCLI(t, "harness", "remove", "claude", "--force")
 	if err != nil {
 		t.Fatalf("harness remove --force: %v", err)
 	}
-	if !strings.Contains(out, "aider") {
-		t.Errorf("expected active_harness to switch to aider, output:\n%s", out)
+	if !strings.Contains(out, "codex") {
+		t.Errorf("expected active_harness to switch to codex, output:\n%s", out)
 	}
 	raw, _ := os.ReadFile(filepath.Join(dir, "wut", "config.toml"))
-	if !strings.Contains(string(raw), `active_harness = "aider"`) {
-		t.Errorf("config.toml should have active_harness=aider:\n%s", raw)
+	if !strings.Contains(string(raw), `active_harness = "codex"`) {
+		t.Errorf("config.toml should have active_harness=codex:\n%s", raw)
 	}
 	if strings.Contains(string(raw), `[harness.claude]`) {
 		t.Errorf("claude harness should be gone from config.toml:\n%s", raw)

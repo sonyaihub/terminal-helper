@@ -152,15 +152,19 @@ func Defaults() *Config {
 					Render:  RenderBox,
 				},
 			},
-			"aider": {
-				Interactive: &Invocation{Command: "aider", Args: []string{"--message", "{prompt}"}},
-				// aider has no true one-shot mode — users hit the fallback policy.
-			},
 			"codex": {
 				Interactive: &Invocation{Command: "codex", Args: []string{"{prompt}"}},
 				Headless: &Invocation{
 					Command: "codex",
 					Args:    []string{"exec", "{prompt}"},
+					Render:  RenderBox,
+				},
+			},
+			"opencode": {
+				Interactive: &Invocation{Command: "opencode", Args: []string{"{prompt}"}},
+				Headless: &Invocation{
+					Command: "opencode",
+					Args:    []string{"run", "{prompt}"},
 					Render:  RenderBox,
 				},
 			},

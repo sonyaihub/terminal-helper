@@ -1,6 +1,6 @@
 # wut
 
-You open a terminal, start typing `how do I rebase onto main without losing my stash`, and the shell yells `command not found`. wut catches that moment and hands the typed text off to your configured AI harness (Claude Code, aider, codex, or a custom CLI) as a prompt.
+You open a terminal, start typing `how do I rebase onto main without losing my stash`, and the shell yells `command not found`. wut catches that moment and hands the typed text off to your configured AI harness (Claude Code, codex, opencode, or a custom CLI) as a prompt.
 
 Zero latency on normal commands — we only run when the shell has already decided your first token isn't a real command.
 
@@ -108,7 +108,7 @@ the interactive and headless blocks (leaving `args` intact).
 
 ## Configuration
 
-Lives at `~/.config/wut/config.toml` (or `$XDG_CONFIG_HOME/wut/config.toml`). Missing file is fine — presets for claude / aider / codex ship with the binary.
+Lives at `~/.config/wut/config.toml` (or `$XDG_CONFIG_HOME/wut/config.toml`). Missing file is fine — presets for claude / codex / opencode ship with the binary.
 
 ```toml
 active_harness = "claude"
