@@ -66,12 +66,12 @@ func NewSetupCmd() *cobra.Command {
 			doHook := installHookFlag
 			if !nonInteractive && !cmd.Flags().Changed("install-hook") {
 				ok, confirmErr := ui.Confirm("install shell hook?")
-				if confirmErr == nil {
+				switch {
+				case confirmErr == nil:
 					doHook = ok
-				} else if !errors.Is(confirmErr, ui.ErrCancelled) {
-					// No TTY — keep the flag default (true).
-				} else {
+				case errors.Is(confirmErr, ui.ErrCancelled):
 					doHook = false
+					// default: no TTY or other prompt failure — preserve installHookFlag (true).
 				}
 			}
 			if doHook {
