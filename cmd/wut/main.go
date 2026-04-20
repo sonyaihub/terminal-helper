@@ -10,7 +10,6 @@ func main() {
 	root.AddCommand(NewHarnessCmd())
 	root.AddCommand(NewDoctorCmd())
 	root.AddCommand(NewSetupCmd())
-	root.AddCommand(NewInstallHookCmd())
 	root.AddCommand(NewRunCmd())
 	root.AddCommand(NewModeCmd())
 	root.AddCommand(NewConfigCmd())

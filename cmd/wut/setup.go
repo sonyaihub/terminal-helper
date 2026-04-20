@@ -1,7 +1,9 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"os"
 	"os/exec"
 	"sort"
 
@@ -12,46 +14,41 @@ import (
 )
 
 func NewSetupCmd() *cobra.Command {
-	var harnessFlag, modeFlag string
+	var harnessFlag, modeFlag, shellFlag string
+	var installHookFlag, installCompletionFlag bool
 	cmd := &cobra.Command{
 		Use:   "setup",
-		Short: "Guided config wizard: pick harness and default mode.",
+		Short: "Guided config wizard: pick harness, default mode, and install the shell hook.",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cfg, path, err := loadConfig()
 			if err != nil {
 				return err
 			}
 
-			// Non-interactive path — both flags supplied, no prompts needed.
-			if harnessFlag != "" && modeFlag != "" {
+			nonInteractive := harnessFlag != "" && modeFlag != ""
+			chosenHarness := harnessFlag
+			chosenMode := config.Mode(modeFlag)
+
+			if nonInteractive {
 				if _, ok := cfg.Harness[harnessFlag]; !ok {
 					return fmt.Errorf("no harness named %q (see `wut harness list`)", harnessFlag)
 				}
 				if !isKnownMode(modeFlag) {
 					return fmt.Errorf("mode %q is not one of interactive|headless|ask", modeFlag)
 				}
-				cfg.ActiveHarness = harnessFlag
-				cfg.DefaultMode = config.Mode(modeFlag)
-				if err := writeConfig(path, cfg); err != nil {
-					return err
-				}
-				fmt.Printf("✔ wrote %s (harness=%s, mode=%s)\n", path, harnessFlag, modeFlag)
-				return nil
-			}
-
-			// Interactive path.
-			chosenHarness, err := pickHarness(cfg, harnessFlag)
-			if err != nil {
-				return err
-			}
-			chosenMode := config.Mode(modeFlag)
-			if chosenMode == "" {
-				chosenMode, err = pickMode()
+			} else {
+				chosenHarness, err = pickHarness(cfg, harnessFlag)
 				if err != nil {
 					return err
 				}
-			} else if !isKnownMode(modeFlag) {
-				return fmt.Errorf("mode %q is not one of interactive|headless|ask", modeFlag)
+				if chosenMode == "" {
+					chosenMode, err = pickMode()
+					if err != nil {
+						return err
+					}
+				} else if !isKnownMode(modeFlag) {
+					return fmt.Errorf("mode %q is not one of interactive|headless|ask", modeFlag)
+				}
 			}
 
 			cfg.ActiveHarness = chosenHarness
@@ -60,12 +57,55 @@ func NewSetupCmd() *cobra.Command {
 				return err
 			}
 			fmt.Printf("✔ wrote %s (harness=%s, mode=%s)\n", path, chosenHarness, chosenMode)
+
+			sh := shellFlag
+			if sh == "" {
+				sh = detectShell()
+			}
+
+			doHook := installHookFlag
+			if !nonInteractive && !cmd.Flags().Changed("install-hook") {
+				ok, confirmErr := ui.Confirm("install shell hook?")
+				switch {
+				case confirmErr == nil:
+					doHook = ok
+				case errors.Is(confirmErr, ui.ErrCancelled):
+					doHook = false
+					// default: no TTY or other prompt failure — preserve installHookFlag (true).
+				}
+			}
+			if doHook {
+				if err := installHook(sh, true); err != nil {
+					fmt.Fprintf(os.Stderr, "⚠ hook install skipped: %v\n", err)
+				}
+			}
+
+			doCompletion := installCompletionFlag
+			if !nonInteractive && !cmd.Flags().Changed("install-completion") {
+				ok, confirmErr := ui.Confirm("install shell completion?")
+				switch {
+				case confirmErr == nil:
+					doCompletion = ok
+				case errors.Is(confirmErr, ui.ErrCancelled):
+					doCompletion = false
+					// default: no TTY or other prompt failure — preserve installCompletionFlag (false).
+				}
+			}
+			if doCompletion {
+				if err := installCompletion(cmd.Root(), sh, true, false); err != nil {
+					fmt.Fprintf(os.Stderr, "⚠ completion install skipped: %v\n", err)
+				}
+			}
+
 			fmt.Println("  run `wut doctor` to verify")
 			return nil
 		},
 	}
 	cmd.Flags().StringVar(&harnessFlag, "harness", "", "harness name (skips the picker when set)")
 	cmd.Flags().StringVar(&modeFlag, "mode", "", "default mode: interactive|headless|ask (skips the picker when set)")
+	cmd.Flags().StringVar(&shellFlag, "shell", "", "override shell detection for hook/completion install (zsh|bash|fish)")
+	cmd.Flags().BoolVar(&installHookFlag, "install-hook", true, "install the shell hook after writing config (use --install-hook=false to skip)")
+	cmd.Flags().BoolVar(&installCompletionFlag, "install-completion", false, "install shell completion after writing config")
 	return cmd
 }
 

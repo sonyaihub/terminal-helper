@@ -21,6 +21,18 @@ func withXDGConfigHome(t *testing.T) string {
 	return dir
 }
 
+// withIsolatedHome points $HOME (and by extension os.UserHomeDir) at a temp
+// dir and pins $SHELL to zsh so hook/completion install tests can't touch
+// the real user's rc files. Use this on top of withXDGConfigHome for any
+// test that exercises install-hook or install-completion.
+func withIsolatedHome(t *testing.T) string {
+	t.Helper()
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	t.Setenv("SHELL", "/bin/zsh")
+	return home
+}
+
 // runCLI runs a root-level command with the given args and captures both
 // os.Stdout (most commands write via fmt.Printf/Println directly) and
 // Cobra's writer (error messages). Each call builds a fresh root so state
@@ -398,16 +410,95 @@ func TestHarnessRemoveUnknownErrors(t *testing.T) {
 
 func TestSetupNonInteractive(t *testing.T) {
 	dir := withXDGConfigHome(t)
-	if _, err := runCLI(t, "setup", "--harness", "codex", "--mode", "headless"); err != nil {
+	withIsolatedHome(t)
+	if _, err := runCLI(t, "setup", "--harness", "codex", "--mode", "headless", "--install-hook=false"); err != nil {
 		t.Fatalf("setup: %v", err)
 	}
-	raw, _ := os.ReadFile(filepath.Join(dir, "wut", "config.toml"))
+	raw, err := os.ReadFile(filepath.Join(dir, "wut", "config.toml"))
+	if err != nil {
+		t.Fatalf("read config.toml: %v", err)
+	}
 	got := string(raw)
 	if !strings.Contains(got, `active_harness = "codex"`) {
 		t.Errorf("active_harness not set:\n%s", got)
 	}
 	if !strings.Contains(got, `default_mode = "headless"`) {
 		t.Errorf("default_mode not set:\n%s", got)
+	}
+}
+
+func TestSetupNonInteractiveInstallsHookByDefault(t *testing.T) {
+	withXDGConfigHome(t)
+	home := withIsolatedHome(t)
+	if _, err := runCLI(t, "setup", "--harness", "codex", "--mode", "headless"); err != nil {
+		t.Fatalf("setup: %v", err)
+	}
+	raw, err := os.ReadFile(filepath.Join(home, ".zshrc"))
+	if err != nil {
+		t.Fatalf("read .zshrc: %v", err)
+	}
+	if !strings.Contains(string(raw), `eval "$(wut init zsh)"`) {
+		t.Errorf(".zshrc missing hook line:\n%s", raw)
+	}
+}
+
+func TestSetupNonInteractiveRespectsInstallHookFalse(t *testing.T) {
+	withXDGConfigHome(t)
+	home := withIsolatedHome(t)
+	if _, err := runCLI(t, "setup", "--harness", "codex", "--mode", "headless", "--install-hook=false"); err != nil {
+		t.Fatalf("setup: %v", err)
+	}
+	if _, err := os.Stat(filepath.Join(home, ".zshrc")); !os.IsNotExist(err) {
+		t.Errorf(".zshrc should not exist when --install-hook=false, got err=%v", err)
+	}
+}
+
+func TestSetupNonInteractiveInstallsCompletion(t *testing.T) {
+	withXDGConfigHome(t)
+	home := withIsolatedHome(t)
+	if _, err := runCLI(t, "setup", "--harness", "codex", "--mode", "headless", "--install-hook=false", "--install-completion"); err != nil {
+		t.Fatalf("setup: %v", err)
+	}
+	script, err := os.ReadFile(filepath.Join(home, ".zsh", "completions", "_wut"))
+	if err != nil {
+		t.Fatalf("read completion: %v", err)
+	}
+	if !strings.Contains(string(script), "_wut") {
+		t.Errorf("completion script missing _wut:\n%s", script)
+	}
+	rc, err := os.ReadFile(filepath.Join(home, ".zshrc"))
+	if err != nil {
+		t.Fatalf("read .zshrc: %v", err)
+	}
+	if !strings.Contains(string(rc), "fpath=(~/.zsh/completions $fpath)") {
+		t.Errorf(".zshrc missing fpath line:\n%s", rc)
+	}
+}
+
+func TestSetupCompletionIsIdempotent(t *testing.T) {
+	withXDGConfigHome(t)
+	home := withIsolatedHome(t)
+	args := []string{"setup", "--harness", "codex", "--mode", "headless", "--install-hook=false", "--install-completion"}
+	if _, err := runCLI(t, args...); err != nil {
+		t.Fatalf("first setup: %v", err)
+	}
+	if _, err := runCLI(t, args...); err != nil {
+		t.Fatalf("second setup: %v", err)
+	}
+	rc, _ := os.ReadFile(filepath.Join(home, ".zshrc"))
+	if n := strings.Count(string(rc), "fpath=(~/.zsh/completions $fpath)"); n != 1 {
+		t.Errorf("fpath line appears %d times, want 1:\n%s", n, rc)
+	}
+}
+
+// TestInstallHookCommandRemoved guards against a future accidental
+// re-registration of the standalone `wut install-hook` command that m7
+// intentionally removed. Setup is the only supported onboarding surface.
+func TestInstallHookCommandRemoved(t *testing.T) {
+	withXDGConfigHome(t)
+	_, err := runCLI(t, "install-hook")
+	if err == nil {
+		t.Fatal("`wut install-hook` should no longer be a command")
 	}
 }
 

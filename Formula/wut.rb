@@ -27,10 +27,9 @@ class Wut < Formula
 
   def caveats
     <<~EOS
-      Finish setup:
+      Finish setup (picks harness, writes config, wires the shell hook):
         wut setup
-        wut install-hook
-        wut doctor
+        wut doctor          # sanity-check the config
     EOS
   end
 

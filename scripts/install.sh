@@ -145,11 +145,9 @@ cat >&2 <<NEXT
 
 Next steps:
 
-  1. Pick a harness and default mode:
+  1. Pick a harness, write config, and wire the shell hook:
        wut setup
-  2. Wire the shell hook:
-       wut install-hook
-  3. Open a new shell, then verify:
+  2. Open a new shell, then verify:
        wut doctor
 
 NEXT

@@ -45,8 +45,7 @@ go install github.com/sonyabytes/wut/cmd/wut@latest
 ## Setup
 
 ```sh
-wut setup            # pick your harness and default mode
-wut install-hook     # wire the hook into ~/.zshrc (or bash/fish)
+wut setup            # picks harness, writes config, wires the shell hook
 ```
 
 Open a new shell, then:
@@ -55,7 +54,9 @@ Open a new shell, then:
 wut doctor           # sanity-check the install
 ```
 
-`install-hook` auto-detects your shell from `$SHELL`. Override with `--shell zsh|bash|fish`, add `-y` to skip the confirmation, or do it by hand if you'd rather:
+`wut setup` auto-detects your shell from `$SHELL`. Override with `--shell zsh|bash|fish`, skip the hook install with `--install-hook=false`, or add shell completion with `--install-completion`. Non-interactive invocation: `wut setup --harness codex --mode headless`.
+
+Rather wire the hook by hand?
 
 ```sh
 # zsh
@@ -82,9 +83,8 @@ wut init fish > ~/.config/fish/conf.d/wut.fish
 
 | Command | Purpose |
 |---|---|
-| `wut install-hook` | Wire the hook into your shell's rc file. Idempotent; `--shell` to override detection, `-y` to skip prompt. |
-| `wut init zsh\|bash\|fish` | Print the shell-hook snippet (lower-level than `install-hook`). |
-| `wut setup` | Guided config wizard. Supports `--harness` / `--mode` for non-interactive use. |
+| `wut setup` | Guided config wizard — picks harness/mode, wires the shell hook, optionally installs completion. Flags: `--harness`, `--mode`, `--shell`, `--install-hook=false`, `--install-completion`. |
+| `wut init zsh\|bash\|fish` | Print the shell-hook snippet. Useful for hand-wiring or sourcing from framework-managed dotfiles. |
 | `wut harness list\|use\|test\|add` | Manage harnesses. `use` takes `--command <bin>` to swap the binary of a preset (e.g. point claude at `claude-yolo`). `test` invokes directly without running detection. |
 | `wut detect --line "<text>"` | Classify + act. Used by the shell hook; exit 127 = pass through. |
 | `wut run --line "<text>" [--mode ...]` | Force a launch, skipping detection. |

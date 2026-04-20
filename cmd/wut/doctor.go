@@ -59,7 +59,7 @@ func NewDoctorCmd() *cobra.Command {
 				fmt.Printf("✓ shell hook: %s\n", hint)
 			} else {
 				fmt.Printf("- shell hook: %s\n", hint)
-				fmt.Printf("  run `wut install-hook` to wire it up\n")
+				fmt.Printf("  run `wut setup` to wire it up\n")
 			}
 
 			if !ok {
@@ -95,8 +95,8 @@ func checkHookInstall() (bool, string) {
 	if err != nil {
 		return false, fmt.Sprintf("%s not readable or missing", candidate)
 	}
-	// install-hook leaves this marker; handwritten `eval "$(wut init
-	// zsh)"` also matches because `wut init` is part of both.
+	// `wut setup` leaves a hookMarker block; handwritten `eval "$(wut init
+	// zsh)"` also matches because `wut init` is the substring we search for.
 	if strings.Contains(string(data), "wut init") {
 		return true, candidate
 	}
